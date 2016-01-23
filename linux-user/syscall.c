@@ -204,6 +204,8 @@ static type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,	\
 #define TARGET_NR__llseek TARGET_NR_llseek
 #endif
 
+static bool last_read_empty = false;
+
 #ifdef __NR_gettid
 _syscall0(int, gettid)
 #else
@@ -671,6 +673,7 @@ abi_long do_brk(abi_ulong new_brk)
         }
 	target_brk = new_brk;
         DEBUGF_BRK(TARGET_ABI_FMT_lx " (new_brk <= brk_page)\n", target_brk);
+		printf("[tracer-debug] New BRK: 0x%lx\n", (unsigned long) target_brk);
     	return target_brk;
     }
 
@@ -699,6 +702,7 @@ abi_long do_brk(abi_ulong new_brk)
         brk_page = HOST_PAGE_ALIGN(target_brk);
         DEBUGF_BRK(TARGET_ABI_FMT_lx " (mapped_addr == brk_page)\n",
             target_brk);
+		printf("[tracer-debug] New BRK: 0x%lx\n", (unsigned long) target_brk);
         return target_brk;
     } else if (mapped_addr != -1) {
         /* Mapped but at wrong address, meaning there wasn't actually
@@ -718,6 +722,7 @@ abi_long do_brk(abi_ulong new_brk)
     return -TARGET_ENOMEM;
 #endif
     /* For everything else, return the previous break. */
+	printf("[tracer-debug] BRK unchanged (0x%lx\n)", (unsigned long) target_brk);
     return target_brk;
 }
 
@@ -5572,6 +5577,14 @@ abi_long do_syscall(void *cpu_env, int num, abi_long arg1,
             if (!(p = lock_user(VERIFY_WRITE, arg2, arg3, 0)))
                 goto efault;
             ret = get_errno(read(arg1, p, arg3));
+            if (ret == 0) {
+                if (last_read_empty) {
+                    exit_group(1);
+                }
+                last_read_empty = true;
+            } else {
+                last_read_empty = false;
+            }
             unlock_user(p, arg2, ret);
         }
         break;

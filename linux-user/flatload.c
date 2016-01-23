@@ -683,6 +683,8 @@ static int load_flat_shared_library(int id, struct lib_info *libs)
 	/* Create the file name */
 	sprintf(buf, "/lib/lib%d.so", id);
 
+	printf("[tracer-debug] Load_flat_so %s\n", buf);
+
 	/* Open the file up */
 	bprm.filename = buf;
 	bprm.file = open_exec(bprm.filename);
@@ -713,6 +715,8 @@ int load_flt_binary(struct linux_binprm *bprm, struct image_info *info)
     abi_ulong sp;
     int res;
     int i, j;
+
+	printf("[tracer-debug] Load_flat %s\n", bprm->filename);
 
     memset(libinfo, 0, sizeof(libinfo));
     /*

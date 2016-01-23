@@ -28,6 +28,8 @@
 
 #define ELF_OSABI   ELFOSABI_SYSV
 
+extern uint64_t tracer_code_start, tracer_code_end;
+
 /* from personality.h */
 
 /*
@@ -1785,6 +1787,7 @@ static void load_elf_image(const char *image_name, int image_fd,
                            struct image_info *info, char **pinterp_name,
                            char bprm_buf[BPRM_BUF_SIZE])
 {
+	printf("[tracer-debug] Loading image %s\n", image_name);
     struct elfhdr *ehdr = (struct elfhdr *)bprm_buf;
     struct elf_phdr *phdr;
     abi_ulong load_addr, load_bias, loaddr, hiaddr, error;
@@ -1922,9 +1925,12 @@ static void load_elf_image(const char *image_name, int image_fd,
             if (elf_prot & PROT_EXEC) {
                 if (vaddr < info->start_code) {
                     info->start_code = vaddr;
+                    if (!tracer_code_start) tracer_code_start = vaddr;
                 }
                 if (vaddr_ef > info->end_code) {
                     info->end_code = vaddr_ef;
+					printf("[tracer-debug] highest address of mapped code: 0x%lx\n", (unsigned long)vaddr_ef);
+                    if (!tracer_code_end) tracer_code_end = vaddr_ef;
                 }
             }
             if (elf_prot & PROT_WRITE) {

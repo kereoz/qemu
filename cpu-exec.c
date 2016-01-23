@@ -29,6 +29,8 @@
 #include "qemu/rcu.h"
 
 /* -icount align implementation. */
+uint64_t tracer_code_start,
+        tracer_code_end;
 
 typedef struct SyncClocks {
     int64_t diff_clk;
@@ -493,16 +495,23 @@ int cpu_exec(CPUArchState *env)
                     tcg_ctx.tb_ctx.tb_invalidated_flag = 0;
                 }
                 if (qemu_loglevel_mask(CPU_LOG_EXEC)) {
-                    qemu_log("Trace %p [" TARGET_FMT_lx "] %s\n",
-                             tb->tc_ptr, tb->pc, lookup_symbol(tb->pc));
+                    /* tracer only cares about transitions in .text */
+                    if (tb->pc >= tracer_code_start && tb->pc <= tracer_code_end)
+                        qemu_log("Trace %p [" TARGET_FMT_lx "] %s\n",
+                                 tb->tc_ptr, tb->pc, lookup_symbol(tb->pc));
                 }
                 /* see if we can patch the calling TB. When the TB
                    spans two pages, we cannot safely do a direct
                    jump. */
+
+                /* tracer needs to see every basic block transition */
+                /*
                 if (next_tb != 0 && tb->page_addr[1] == -1) {
                     tb_add_jump((TranslationBlock *)(next_tb & ~TB_EXIT_MASK),
                                 next_tb & TB_EXIT_MASK, tb);
                 }
+                */
+
                 have_tb_lock = false;
                 spin_unlock(&tcg_ctx.tb_ctx.tb_lock);
 

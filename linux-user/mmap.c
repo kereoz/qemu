@@ -33,6 +33,8 @@
 
 //#define DEBUG_MMAP
 
+extern uint64_t tracer_code_end;
+
 static pthread_mutex_t mmap_mutex = PTHREAD_MUTEX_INITIALIZER;
 static __thread int mmap_lock_count;
 
@@ -371,6 +373,12 @@ abi_long target_mmap(abi_ulong start, abi_ulong len, int prot,
                      int flags, int fd, abi_ulong offset)
 {
     abi_ulong ret, end, real_start, real_end, retaddr, host_offset, host_len;
+
+	if (len+start > tracer_code_end)
+	{
+		printf("[tracer-debug] mmap: tracer_code_end updated: 0x%lx\n", (unsigned long)len+start);
+		tracer_code_end = len+start;
+	}
 
     mmap_lock();
 #ifdef DEBUG_MMAP
