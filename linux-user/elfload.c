@@ -1619,6 +1619,7 @@ static abi_ulong create_elf_tables(abi_ulong p, int argc, int envc,
     sp = loader_build_argptr(envc, argc, sp, p, 0);
     /* Check the right amount of stack was allocated for auxvec, envp & argv. */
     assert(sp_auxv - sp == size);
+	qemu_log("[tracer-debug] auxv: 0x%lx\n", (unsigned long) sp_auxv);
     return sp;
 }
 
@@ -1787,7 +1788,7 @@ static void load_elf_image(const char *image_name, int image_fd,
                            struct image_info *info, char **pinterp_name,
                            char bprm_buf[BPRM_BUF_SIZE])
 {
-	printf("[tracer-debug] Loading image %s\n", image_name);
+	qemu_log("[tracer-debug] Loading image %s\n", image_name);
     struct elfhdr *ehdr = (struct elfhdr *)bprm_buf;
     struct elf_phdr *phdr;
     abi_ulong load_addr, load_bias, loaddr, hiaddr, error;
@@ -1929,7 +1930,7 @@ static void load_elf_image(const char *image_name, int image_fd,
                 }
                 if (vaddr_ef > info->end_code) {
                     info->end_code = vaddr_ef;
-					printf("[tracer-debug] highest address of mapped code: 0x%lx\n", (unsigned long)vaddr_ef);
+					qemu_log("[tracer-debug] HIGHEST_MAPPED_ADDR 0x%lx\n", (unsigned long)vaddr_ef);
                     if (!tracer_code_end) tracer_code_end = vaddr_ef;
                 }
             }

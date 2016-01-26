@@ -374,9 +374,11 @@ abi_long target_mmap(abi_ulong start, abi_ulong len, int prot,
 {
     abi_ulong ret, end, real_start, real_end, retaddr, host_offset, host_len;
 
+	if (start != 0 && len !=0)
+		qemu_log("[tracer-debug] NEW_MMAP: 0x%lx - 0x%lx\n", (unsigned long) start, (unsigned long)len+start);
 	if (len+start > tracer_code_end)
 	{
-		printf("[tracer-debug] mmap: tracer_code_end updated: 0x%lx\n", (unsigned long)len+start);
+		qemu_log("[tracer-debug] HIGHEST_MAPPED_ADDR 0x%lx\n", (unsigned long)len+start);
 		tracer_code_end = len+start;
 	}
 

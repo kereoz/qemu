@@ -673,7 +673,7 @@ abi_long do_brk(abi_ulong new_brk)
         }
 	target_brk = new_brk;
         DEBUGF_BRK(TARGET_ABI_FMT_lx " (new_brk <= brk_page)\n", target_brk);
-		printf("[tracer-debug] New BRK: 0x%lx\n", (unsigned long) target_brk);
+		qemu_log("[tracer-debug] NEW BRK 0x%lx\n", (unsigned long) target_brk);
     	return target_brk;
     }
 
@@ -702,7 +702,7 @@ abi_long do_brk(abi_ulong new_brk)
         brk_page = HOST_PAGE_ALIGN(target_brk);
         DEBUGF_BRK(TARGET_ABI_FMT_lx " (mapped_addr == brk_page)\n",
             target_brk);
-		printf("[tracer-debug] New BRK: 0x%lx\n", (unsigned long) target_brk);
+		qemu_log("[tracer-debug] NEW BRK 0x%lx\n", (unsigned long) target_brk);
         return target_brk;
     } else if (mapped_addr != -1) {
         /* Mapped but at wrong address, meaning there wasn't actually
@@ -722,7 +722,7 @@ abi_long do_brk(abi_ulong new_brk)
     return -TARGET_ENOMEM;
 #endif
     /* For everything else, return the previous break. */
-	printf("[tracer-debug] BRK unchanged (0x%lx\n)", (unsigned long) target_brk);
+	qemu_log("[tracer-debug] BRK unchanged (0x%lx\n)", (unsigned long) target_brk);
     return target_brk;
 }
 

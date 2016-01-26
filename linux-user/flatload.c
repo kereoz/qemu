@@ -683,7 +683,7 @@ static int load_flat_shared_library(int id, struct lib_info *libs)
 	/* Create the file name */
 	sprintf(buf, "/lib/lib%d.so", id);
 
-	printf("[tracer-debug] Load_flat_so %s\n", buf);
+	qemu_log("[tracer-debug] LOAD_FLAT_SO %s\n", buf);
 
 	/* Open the file up */
 	bprm.filename = buf;
@@ -716,7 +716,11 @@ int load_flt_binary(struct linux_binprm *bprm, struct image_info *info)
     int res;
     int i, j;
 
-	printf("[tracer-debug] Load_flat %s\n", bprm->filename);
+	qemu_log("[tracer-debug] LOAD_FLAT %s\n", bprm->filename);
+	qemu_log("[tracer-debug] envp: 0x%lx\n", (unsigned long) bprm->envp);
+	qemu_log("[tracer-debug] envc %d\n", bprm->envc);
+	qemu_log("[tracer-debug] argv: 0x%lx\n", (unsigned long) bprm->argv);
+	qemu_log("[tracer-debug] argc: 0x%d\n", bprm->argc);
 
     memset(libinfo, 0, sizeof(libinfo));
     /*
@@ -738,6 +742,7 @@ int load_flt_binary(struct linux_binprm *bprm, struct image_info *info)
     stack_len += (bprm->argc + 1) * 4; /* the argv array */
     stack_len += (bprm->envc + 1) * 4; /* the envp array */
 
+	qemu_log("[tracer-debug] stack_len: %lu\n", (unsigned long) stack_len);
 
     res = load_flat_file(bprm, libinfo, 0, &stack_len);
     if (res > (unsigned long)-4096)
