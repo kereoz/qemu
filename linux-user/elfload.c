@@ -1426,6 +1426,7 @@ static abi_ulong setup_arg_pages(abi_ulong p, struct linux_binprm *bprm,
         }
         stack_base += TARGET_PAGE_SIZE;
     }
+	qemu_log("[tracer-debug] stack_base_at 0x%lx\n", (unsigned long) stack_base);
     return p;
 }
 
